@@ -8,7 +8,14 @@
 #include <linux/i2c-dev.h>
 #include <inttypes.h>
 
-//compile with gcc -lwiringPi -o tune tune.c
+// compile with gcc -lwiringPi -o si4703-init si4703-init.c
+
+// So far, this is the only file that I've not been able to write
+// so that it doesn't use the wiringPi library.  Because below
+// reconfigures RPi GPIO pins, it takes a bit more than simply
+// rewriting the write statements (which was all that was required
+// to rewrite the other functions.  This is important becuase use
+// of wiringPi seems to require root permissions to run the binaries.
 
 // NOTE: pin schema used by gpio util and the wiringpi library are different
 
@@ -81,9 +88,9 @@ void read_registers() {
 	reg[14]=(buf[4]>>8)|(buf[4]<<8);
 	reg[15]=(buf[5]>>8)|(buf[5]<<8);
 	
-	for(a=0;a<16;a++){
-		printf("0X%02X:\t%04X\n",a,reg[a]);
-	}
+//	for(a=0;a<16;a++){
+//		printf("0X%02X:\t%04X\n",a,reg[a]);
+//	}
 	return;
 }
 
@@ -105,9 +112,9 @@ void write_registers() {
 		newreg[r]=(reg[i]>>8)|(reg[i]<<8);
 		r++;
 	}
-	for(i=0;i<r;i++) {
-		printf("%d %04X\n",i,newreg[i]);
-	}
+//	for(i=0;i<r;i++) {
+//		printf("%d %04X\n",i,newreg[i]);
+//	}
 	if(write(fd,newreg,12) < 12) {
 		printf("could not write to device\n");
 		exit(1);
