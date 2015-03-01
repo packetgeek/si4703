@@ -1,5 +1,5 @@
 # si4703
-This folder contains the various files that I'm working on for the Si4703 breakout board.  For instructions on compiling, read the source code for each.
+This folder contains the various files that I'm working on for the Si4703 breakout board. (These are functional.)  For instructions on compiling, read the source code for each.
 
 * registers.c - Has no control over the chip but dumps the Si4703's registers to the command line.  (Note: you need to run si4703-init first, or registers.c will dump mostly 0's.  Requires no argument.
 * reset-bus.sh - A short script that resets the GPIO pin config.  This was valuable while working out the code.  Requires no argument.
