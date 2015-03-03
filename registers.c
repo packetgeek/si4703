@@ -6,8 +6,6 @@
 #include <linux/i2c-dev.h>
 #include <inttypes.h>
 
-// compile with gcc -o registers registers.c
-
 int fd,r,mine;
 
 char *dev="/dev/i2c-1";

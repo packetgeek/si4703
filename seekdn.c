@@ -6,11 +6,12 @@
 #include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
 #include <inttypes.h>
+#include <unistd.h>
+
+// compile with gcc -o tune tune.c
 
 uint16_t buf[16];
 uint16_t reg[16];
-
-// compile via "gcc -o status status.c"
 
 // following opens access to the FM receiver
 int open_chip() {
@@ -70,42 +71,29 @@ void read_registers(int fd) {
 	return;
 }
 
-// spec sheet says frequency is in register 03h
-float get_frequency() {
-	//int channel=(reg[0x03] & 0x1FF);
-	int channel=(reg[0x0B] & 0x1FF);
-	float frequency=.1*channel+87.5;
-	return frequency;
-}
+void write_registers() {
+	int dID = 0x10;
+	int fd;
 
-// spec sheet says stereo indicate is bit 8 in register 0Ah
-int detect_stereo() {
-	int fd = open_chip();
-	read_registers(fd);
+	fd=open_chip();
+
+	int i;
+	int r=0;
+	uint16_t newreg[6];
+
+	//convert back to big endian
+	for(i=0x02;i<0x08;i++) {
+		newreg[r]=(reg[i]>>8)|(reg[i]<<8);
+		r++;
+	}
+//	for(i=0;i<r;i++) {
+//		printf("%d %04X\n",i,newreg[i]);
+//	}
+	if(write(fd,newreg,12) < 12) {
+		printf("could not write to device\n");
+		exit(1);
+	}
 	close(fd);
-
-	int stereo = (reg[0x0A] & 0x0100)>>8;
-	//printf("stereo = %x\n",stereo);
-	return stereo;
-}
-
-int get_signal_strength() {
-	int fd = open_chip();
-	read_registers(fd);
-	close(fd);
-
-	int signal = (reg[0x0A] & 0xFF);
-	//printf("0x0A = %04X\n",reg[0x0A]);
-	return signal;
-}
-
-int get_volume() {
-	int fd = open_chip();
-	read_registers(fd);
-	close(fd);
-
-	int volume = (reg[0x05] & 0xF);
-	return volume;
 }
 
 int main( int argc, char *argv[]) {
@@ -114,14 +102,40 @@ int main( int argc, char *argv[]) {
 	read_registers(fd);
 	close_chip(fd);
 	
-	printf("freq\t= %0.1F\n",get_frequency());
+	reg[0x02] |= (1<<10); // allow wrap
+	reg[0x02] &= ~(1<<9); // set seek direction
+	reg[0x02] |= (1<<8); // start seek
 
-	printf("stereo\t= ");
-	if(detect_stereo()==0) {
-		printf("no\n");
-	} else {
-		printf("yes\n");
+	write_registers();
+
+	// watch for STC == 1
+	while (1) {
+		fd=open_chip();
+		read_registers(fd);
+		close_chip(fd);
+		if((reg[10] & (1<<14)) !=0) break; //tuning finished
 	}
-	printf("signal\t= %02d\n",(int)get_signal_strength());
-	printf("volume\t= %02d\n",(int)get_volume());
+
+	fd=open_chip();
+	read_registers(fd);
+	close_chip(fd);
+
+	int SFBL = reg[0x0A] & (1<<13);
+	reg[0x02] &= ~(1<<8); //clear the seek bit
+	write_registers();
+
+//	usleep(80000);
+
+	while (1) {
+		fd=open_chip();
+		read_registers(fd);
+		close_chip(fd);
+
+		if((reg[0x0A] & (1<<14)) == 0) break;
+	}
+
+	if(SFBL) {
+		exit(1);
+	}
+	return;
 }
