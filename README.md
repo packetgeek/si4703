@@ -11,4 +11,4 @@ This folder contains the various files that I'm working on for the Si4703 breako
 Known issues:
 - (1 Mar 2015) For some reason, listening to certain RDS-enabled stations can trigger a reset of the chip.  This may be a function of my hardware (RPi, breadboard, power supply, my wife's cat, etc.).  Will provide updates as I better determine possible causes.
 - (1 Mar 2015) status.c checks the incorrect register for the currently tuned channel.  Register 0x03 contains the last frequency entered by the user and this value doesn't change when the seek function is employed.  The proper register to read is 0x0B.  I will correct this in the next update.
-- (1 Mar 2015) si4703-init.c requires wiringPi library.  This is a bit overkill to just toggle a GPIO pin to reset the Si4703.  Update (2 Mar): now have a working binary that doesn't require the wiringPi library.  Will upload code in the next update.
+- (2 Mar 2015) Above version of si4703-init.c requires wiringPi library.  This is a bit overkill to just toggle a GPIO pin to reset the Si4703.  I now have a working binary that doesn't require the wiringPi library.  Testing, clean up, and documentation to follow shortly.
