@@ -105,6 +105,8 @@ int main( int argc, char *argv[]) {
 	reg[0x02] |= (1<<10); // allow wrap
 	reg[0x02] |= (1<<9); // set seek direction
 	reg[0x02] |= (1<<8); // start seek
+	reg[0x06] |= (1<<4); // set min seek threshold
+	reg[0x06] |= (1<<1); //set min FM Imp. threshold
 
 	write_registers();
 
