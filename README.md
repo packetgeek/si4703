@@ -4,7 +4,7 @@ This folder contains the various files that I'm working on for the Si4703 breako
 - **registers.c** - Has no control over the chip but dumps the Si4703's registers to the command line.  (Note: you need to run si4703-init first, or registers.c will dump mostly 0's.  Requires no argument.
 - **reset-bus.sh** - A short script that resets the GPIO pin config.  This was valuable while working out the code.  Requires no argument.
 - **seekdn.c** - Tunes downward to the next radio station.  Minimal sensitivity hard code (edit to your taste).  Requires no argument.
-- - **seekup.c** - Tunes upward to the next radio station.  Minimal sensitivity hard code (edit to your taste).  Requires no argument.
+- **seekup.c** - Tunes upward to the next radio station.  Minimal sensitivity hard code (edit to your taste).  Requires no argument.
 - **si4703-init.c** - Initializes the Si4703, powers it on, and sets initial volume to 5 (out of 15).  This command needs to be run before any other control.
 - **status.c** - A simplified version of registers.c.  Shows: the current FM radio station, the current volume, the current signal strength, and if stereo was detected.
 - **tune.c** - Tunes the chip to a specific frequency.  Requires one argument: frequency in MHz (e.g., "./tune 98.7").
