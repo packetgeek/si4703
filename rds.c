@@ -6,11 +6,21 @@
 #include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
 #include <inttypes.h>
+#include <wiringPi.h>
+#include <string.h>
 
 uint16_t buf[16];
 uint16_t reg[16];
 
-// compile via "gcc -o status status.c"
+uint8_t Ah, Al, Bh, Bl, Ch, Cl, Dh, Dl;
+
+typedef uint8_t boolean;
+typedef uint8_t byte;
+
+#define true 1
+#define false 0
+
+// compile via "gcc -o status status.c -lwiringPi"
 
 // following opens access to the FM receiver
 int open_chip() {
@@ -117,6 +127,37 @@ int test_rds() {
 	return rdsdet;
 }
 
+void readRDS(int fd, char* buffer, long timeout) {
+	long endTime = millis() + timeout;
+	boolean completed[] = {false, false, false, false};
+	int completedCount=0;
+
+	while (completedCount<4 && millis()<endTime) {
+		read_registers(fd);
+		if(reg[0x0A] & (1<<15)) {
+			uint16_t b = reg[0x0D];
+			int index = b & 0x03;
+
+			if (!completed[index] && b < 500) {
+				completed[index] = true;
+				completedCount++;
+				char Dh = (reg[0x0F] & 0xFF00)>>8;
+				char Dl = (reg[0x0F] & 0x00FF);
+				buffer[index *2] = Dh;
+				buffer[index *2+1]=Dl;
+			}
+			delay(50); //originally was set to 40
+		} else {
+			delay(30);
+		}
+	}
+	if (millis() >= endTime) {
+		buffer[0]='\0';
+		return;
+	}
+	buffer[8]='\0';
+}
+
 int main( int argc, char *argv[]) {
 	int fd;
 	fd=open_chip();
@@ -135,4 +176,18 @@ int main( int argc, char *argv[]) {
 	printf("volume\t= %02d\n",(int)get_volume());
 	printf("rds\t= %d\n",test_rds());
 	
+	fd=open_chip();
+	char oldbuffer[10]={0};
+	while(1) {
+		char buffer[10]={0};
+		readRDS(fd,buffer,15000);
+		if(strncmp(oldbuffer,buffer,10)==0) {
+		} else {
+			printf("%s\n",buffer);
+		}
+		strncpy(oldbuffer,buffer,10);
+	}
+	//read_registers(fd);
+	close(fd);
+	return;
 }
