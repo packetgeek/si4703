@@ -13,5 +13,5 @@ This folder contains the various files that I'm working on for the Si4703 breako
 
 Known issues:
 - (15 Mar 2015) rds.c still requires the wiringPi library (for the timeout functions).  Will need to rewrite this in the future.
-- (1 Mar 2016) Certain portions of the code are not needed due to the normally available Si4703 breakout boards being hardwired.  The code doesn't appear to affect anything, it's just non-functional because of the "hardwiring".  Short version: it's been pointed out that this code could be shorter.  I'll get around to editing it eventually.
+- (1 Mar 2017) Certain portions of the code are not needed due to the normally available Si4703 breakout boards being hardwired.  The code doesn't appear to affect anything, it's just non-functional because of the "hardwiring".  Short version: it's been pointed out that this code could be shorter.  I'll get around to editing it eventually.
 
